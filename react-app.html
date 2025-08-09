@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Exercises - React Interactive</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .app { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 40px; color: white; }
+        .header h1 { font-size: 3rem; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .stats { display: flex; justify-content: center; gap: 30px; margin: 20px 0; }
+        .stat-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 20px; border-radius: 15px; text-align: center; color: white; min-width: 120px; }
+        .progress-ring { width: 120px; height: 120px; margin: 0 auto 20px; }
+        .progress-ring circle { fill: none; stroke-width: 8; }
+        .progress-bg { stroke: rgba(255,255,255,0.2); }
+        .progress-fill { stroke: #4ade80; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+        .filters { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+        .filter-btn { padding: 12px 24px; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; background: rgba(255,255,255,0.1); color: white; backdrop-filter: blur(10px); }
+        .filter-btn.active { background: #4ade80; color: #1f2937; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(74, 222, 128, 0.3); }
+        .search-container { position: relative; max-width: 500px; margin: 0 auto 30px; }
+        .search-box { width: 100%; padding: 15px 50px 15px 20px; border: none; border-radius: 25px; font-size: 16px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); }
+        .search-icon { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #6b7280; }
+        .exercises-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 25px; }
+        .exercise-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.2); }
+        .exercise-card:hover { transform: translateY(-5px); box-shadow: 0 30px 60px rgba(0,0,0,0.15); }
+        .exercise-header { display: flex; justify-content: between; align-items: center; margin-bottom: 20px; }
+        .exercise-title { font-size: 1.4rem; font-weight: 700; color: #1f2937; margin-bottom: 10px; }
+        .difficulty-badge { padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+        .difficulty-basic { background: #dcfce7; color: #166534; }
+        .difficulty-beginner { background: #fef3c7; color: #92400e; }
+        .difficulty-intermediate { background: #fed7aa; color: #c2410c; }
+        .difficulty-pro { background: #fecaca; color: #dc2626; }
+        .difficulty-expert { background: #e9d5ff; color: #7c3aed; }
+        .task-list { margin: 20px 0; }
+        .task-item { display: flex; align-items: center; padding: 12px; margin: 8px 0; background: #f8fafc; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; }
+        .task-item:hover { background: #e2e8f0; }
+        .task-item.completed { background: #dcfce7; }
+        .task-checkbox { width: 20px; height: 20px; margin-right: 12px; cursor: pointer; }
+        .code-block { background: #1e293b; color: #e2e8f0; padding: 20px; border-radius: 12px; margin: 20px 0; overflow-x: auto; font-family: 'Monaco', 'Menlo', monospace; font-size: 14px; line-height: 1.6; }
+        .action-buttons { display: flex; gap: 12px; margin-top: 20px; }
+        .btn { padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+        .btn-success { background: #10b981; color: white; }
+        .btn-secondary { background: #6b7280; color: white; }
+        .btn-secondary:hover { background: #4b5563; }
+        .terminal { background: #0f172a; color: #00ff00; padding: 20px; border-radius: 12px; font-family: 'Monaco', monospace; margin: 20px 0; min-height: 200px; overflow-y: auto; }
+        .terminal-line { margin: 5px 0; }
+        .terminal-prompt { color: #22d3ee; }
+        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; padding: 40px; border-radius: 20px; max-width: 800px; max-height: 80vh; overflow-y: auto; }
+        .achievement-popup { position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1001; animation: slideIn 0.5s ease; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+
+        const exercises = [
+            {
+                id: 1, title: "File System Navigation", level: "Basic", difficulty: "🟢",
+                tasks: ["Create directory structure", "Navigate using cd, pwd", "List files with ls commands", "Create files with touch"],
+                commands: `mkdir -p projects/web/{frontend,backend}\ncd projects/web/frontend\npwd\ntouch index.html\nls -la`
+            },
+            {
+                id: 2, title: "Basic File Operations", level: "Basic", difficulty: "🟢",
+                tasks: ["Copy files and directories", "Move and rename files", "Delete files safely", "View file contents"],
+                commands: `cp file.txt backup.txt\nmv old.txt new.txt\nrm unwanted.txt\ncat file.txt\nhead -10 file.txt`
+            },
+            {
+                id: 3, title: "Git Introduction", level: "Basic", difficulty: "🟢",
+                tasks: ["Initialize Git repository", "Configure user settings", "Make first commit", "Check status and history"],
+                commands: `git init\ngit config --global user.name "Your Name"\ngit add .\ngit commit -m "First commit"\ngit status\ngit log`
+            },
+            {
+                id: 4, title: "Docker Basics", level: "Beginner", difficulty: "🟡",
+                tasks: ["Pull and run containers", "List running containers", "Stop and remove containers", "View container logs"],
+                commands: `docker pull nginx\ndocker run -d -p 8080:80 nginx\ndocker ps\ndocker stop <container-id>\ndocker logs <container-id>`
+            },
+            {
+                id: 5, title: "Kubernetes Deployment", level: "Pro", difficulty: "🔴",
+                tasks: ["Create deployments and services", "Configure ingress controllers", "Implement rolling updates", "Set up monitoring"],
+                commands: `kubectl apply -f deployment.yaml\nkubectl expose deployment app --port=80\nkubectl rollout status deployment/app\nkubectl get pods`
+            }
+        ];
+
+        const ProgressRing = ({ progress }) => {
+            const radius = 54;
+            const circumference = 2 * Math.PI * radius;
+            const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+            return (
+                <svg className="progress-ring" viewBox="0 0 120 120">
+                    <circle className="progress-bg" cx="60" cy="60" r={radius} />
+                    <circle 
+                        className="progress-fill" 
+                        cx="60" 
+                        cy="60" 
+                        r={radius}
+                        strokeDasharray={circumference}
+                        strokeDashoffset={strokeDashoffset}
+                    />
+                    <text x="60" y="65" textAnchor="middle" fill="white" fontSize="20" fontWeight="bold">
+                        {Math.round(progress)}%
+                    </text>
+                </svg>
+            );
+        };
+
+        const Terminal = ({ commands, isActive }) => {
+            const [output, setOutput] = useState([]);
+            const [currentLine, setCurrentLine] = useState(0);
+
+            useEffect(() => {
+                if (!isActive) return;
+                
+                const lines = commands.split('\n');
+                const timer = setInterval(() => {
+                    if (currentLine < lines.length) {
+                        setOutput(prev => [...prev, { 
+                            type: 'command', 
+                            text: `$ ${lines[currentLine]}`,
+                            result: `✓ Command executed successfully`
+                        }]);
+                        setCurrentLine(prev => prev + 1);
+                    } else {
+                        clearInterval(timer);
+                    }
+                }, 1000);
+
+                return () => clearInterval(timer);
+            }, [isActive, currentLine, commands]);
+
+            return (
+                <div className="terminal">
+                    {output.map((line, index) => (
+                        <div key={index}>
+                            <div className="terminal-line">
+                                <span className="terminal-prompt">{line.text}</span>
+                            </div>
+                            <div className="terminal-line" style={{color: '#10b981', marginLeft: '20px'}}>
+                                {line.result}
+                            </div>
+                        </div>
+                    ))}
+                    {currentLine < commands.split('\n').length && (
+                        <div className="terminal-line">
+                            <span className="terminal-prompt">$ </span>
+                            <span style={{animation: 'blink 1s infinite'}}>_</span>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const ExerciseCard = ({ exercise, completedTasks, onTaskToggle, onComplete, onRunCommands }) => {
+            const [showTerminal, setShowTerminal] = useState(false);
+            const completedCount = completedTasks[exercise.id]?.length || 0;
+            const isCompleted = completedCount === exercise.tasks.length;
+
+            const getDifficultyClass = (level) => {
+                return `difficulty-${level.toLowerCase()}`;
+            };
+
+            return (
+                <div className="exercise-card">
+                    <div className="exercise-header">
+                        <div>
+                            <h3 className="exercise-title">
+                                {isCompleted ? '✅' : '📝'} {exercise.title}
+                            </h3>
+                            <span className={`difficulty-badge ${getDifficultyClass(exercise.level)}`}>
+                                {exercise.difficulty} {exercise.level}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="task-list">
+                        <h4>Tasks ({completedCount}/{exercise.tasks.length}):</h4>
+                        {exercise.tasks.map((task, index) => {
+                            const isTaskCompleted = completedTasks[exercise.id]?.includes(index);
+                            return (
+                                <div 
+                                    key={index}
+                                    className={`task-item ${isTaskCompleted ? 'completed' : ''}`}
+                                    onClick={() => onTaskToggle(exercise.id, index)}
+                                >
+                                    <input 
+                                        type="checkbox" 
+                                        className="task-checkbox"
+                                        checked={isTaskCompleted}
+                                        readOnly
+                                    />
+                                    {task}
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <div className="code-block">
+                        <pre>{exercise.commands}</pre>
+                    </div>
+
+                    {showTerminal && (
+                        <Terminal commands={exercise.commands} isActive={showTerminal} />
+                    )}
+
+                    <div className="action-buttons">
+                        <button 
+                            className={`btn ${isCompleted ? 'btn-success' : 'btn-primary'}`}
+                            onClick={() => onComplete(exercise.id)}
+                        >
+                            {isCompleted ? '✅ Completed' : '📝 Mark Complete'}
+                        </button>
+                        <button 
+                            className="btn btn-secondary"
+                            onClick={() => setShowTerminal(!showTerminal)}
+                        >
+                            {showTerminal ? '🔒 Hide Terminal' : '💻 Run Commands'}
+                        </button>
+                        <button 
+                            className="btn btn-secondary"
+                            onClick={() => navigator.clipboard.writeText(exercise.commands)}
+                        >
+                            📋 Copy
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const AchievementPopup = ({ achievement, onClose }) => {
+            useEffect(() => {
+                const timer = setTimeout(onClose, 3000);
+                return () => clearTimeout(timer);
+            }, [onClose]);
+
+            return (
+                <div className="achievement-popup">
+                    <h3>🎉 Achievement Unlocked!</h3>
+                    <p>{achievement}</p>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [completedExercises, setCompletedExercises] = useState(() => 
+                JSON.parse(localStorage.getItem('completedExercises') || '[]')
+            );
+            const [completedTasks, setCompletedTasks] = useState(() => 
+                JSON.parse(localStorage.getItem('completedTasks') || '{}')
+            );
+            const [filterLevel, setFilterLevel] = useState('All');
+            const [searchQuery, setSearchQuery] = useState('');
+            const [achievement, setAchievement] = useState(null);
+
+            const filteredExercises = exercises.filter(exercise => {
+                const matchesLevel = filterLevel === 'All' || exercise.level === filterLevel;
+                const matchesSearch = exercise.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    exercise.tasks.some(task => task.toLowerCase().includes(searchQuery.toLowerCase()));
+                return matchesLevel && matchesSearch;
+            });
+
+            const progress = (completedExercises.length / exercises.length) * 100;
+            const levels = ['All', 'Basic', 'Beginner', 'Intermediate', 'Pro', 'Expert'];
+
+            const handleTaskToggle = useCallback((exerciseId, taskIndex) => {
+                setCompletedTasks(prev => {
+                    const exerciseTasks = prev[exerciseId] || [];
+                    const newTasks = exerciseTasks.includes(taskIndex)
+                        ? exerciseTasks.filter(i => i !== taskIndex)
+                        : [...exerciseTasks, taskIndex];
+                    
+                    const updated = { ...prev, [exerciseId]: newTasks };
+                    localStorage.setItem('completedTasks', JSON.stringify(updated));
+                    return updated;
+                });
+            }, []);
+
+            const handleComplete = useCallback((exerciseId) => {
+                setCompletedExercises(prev => {
+                    const isCompleted = prev.includes(exerciseId);
+                    const updated = isCompleted 
+                        ? prev.filter(id => id !== exerciseId)
+                        : [...prev, exerciseId];
+                    
+                    localStorage.setItem('completedExercises', JSON.stringify(updated));
+                    
+                    if (!isCompleted) {
+                        const completedCount = updated.length;
+                        if (completedCount === 1) setAchievement("First Exercise Completed! 🎯");
+                        else if (completedCount === 5) setAchievement("5 Exercises Mastered! 🚀");
+                        else if (completedCount === exercises.length) setAchievement("DevOps Master! All exercises completed! 🏆");
+                    }
+                    
+                    return updated;
+                });
+            }, []);
+
+            return (
+                <div className="app">
+                    <div className="header">
+                        <h1>🚀 DevOps Interactive Learning</h1>
+                        <p>Master DevOps with hands-on exercises and real-time feedback</p>
+                        
+                        <div className="stats">
+                            <div className="stat-card">
+                                <ProgressRing progress={progress} />
+                                <h3>Overall Progress</h3>
+                            </div>
+                            <div className="stat-card">
+                                <h2>{completedExercises.length}</h2>
+                                <p>Completed</p>
+                            </div>
+                            <div className="stat-card">
+                                <h2>{exercises.length - completedExercises.length}</h2>
+                                <p>Remaining</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="filters">
+                        {levels.map(level => (
+                            <button
+                                key={level}
+                                className={`filter-btn ${filterLevel === level ? 'active' : ''}`}
+                                onClick={() => setFilterLevel(level)}
+                            >
+                                {level}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="search-container">
+                        <input
+                            type="text"
+                            className="search-box"
+                            placeholder="🔍 Search exercises..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        <span className="search-icon">🔍</span>
+                    </div>
+
+                    <div className="exercises-grid">
+                        {filteredExercises.map(exercise => (
+                            <ExerciseCard
+                                key={exercise.id}
+                                exercise={exercise}
+                                completedTasks={completedTasks}
+                                onTaskToggle={handleTaskToggle}
+                                onComplete={handleComplete}
+                            />
+                        ))}
+                    </div>
+
+                    {achievement && (
+                        <AchievementPopup 
+                            achievement={achievement} 
+                            onClose={() => setAchievement(null)} 
+                        />
+                    )}
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
