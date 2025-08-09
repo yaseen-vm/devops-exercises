@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Exercises - Interactive Learning</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { color: #2c3e50; margin-bottom: 10px; }
+        .progress-bar { width: 100%; height: 10px; background: #ecf0f1; border-radius: 5px; margin: 20px 0; }
+        .progress { height: 100%; background: #3498db; border-radius: 5px; transition: width 0.3s; }
+        .sidebar { position: fixed; left: -300px; top: 0; width: 300px; height: 100vh; background: #34495e; color: white; transition: left 0.3s; overflow-y: auto; z-index: 1000; }
+        .sidebar.open { left: 0; }
+        .sidebar h3 { padding: 20px; background: #2c3e50; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { padding: 10px 20px; cursor: pointer; border-bottom: 1px solid #2c3e50; }
+        .sidebar li:hover { background: #2c3e50; }
+        .sidebar li.active { background: #3498db; }
+        .menu-btn { position: fixed; top: 20px; left: 20px; background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; z-index: 1001; }
+        .main-content { margin-left: 0; transition: margin-left 0.3s; }
+        .exercise-card { background: white; border-radius: 10px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .exercise-title { color: #2c3e50; margin-bottom: 15px; }
+        .exercise-content { display: none; }
+        .exercise-content.active { display: block; }
+        .code-block { background: #2c3e50; color: #ecf0f1; padding: 20px; border-radius: 5px; margin: 15px 0; overflow-x: auto; }
+        .btn { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #2980b9; }
+        .btn.completed { background: #27ae60; }
+        .task-list { margin: 15px 0; }
+        .task-item { padding: 10px; margin: 5px 0; background: #f8f9fa; border-left: 4px solid #3498db; cursor: pointer; }
+        .task-item.completed { background: #d4edda; border-left-color: #27ae60; }
+        .search-box { width: 100%; padding: 15px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <button class="menu-btn" onclick="toggleSidebar()">☰ Menu</button>
+    
+    <div class="sidebar" id="sidebar">
+        <h3>DevOps Exercises</h3>
+        <ul id="exerciseList"></ul>
+    </div>
+    
+    <div class="main-content" id="mainContent">
+        <div class="container">
+            <div class="header">
+                <h1>🚀 DevOps Exercises - Interactive Learning</h1>
+                <p>Master DevOps from basic to advanced with hands-on exercises</p>
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+                <p id="progressText">Progress: 0/22 exercises completed</p>
+            </div>
+            
+            <input type="text" class="search-box" placeholder="🔍 Search exercises..." onkeyup="searchExercises(this.value)">
+            
+            <div id="exerciseContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const exercises = [
+            {
+                id: 1,
+                title: "File System Navigation",
+                category: "Linux Commands",
+                tasks: [
+                    "Create directory structure: projects/web/{frontend,backend}",
+                    "Navigate using cd, pwd commands",
+                    "List files with ls, ls -la, ls -lh",
+                    "Create files with touch",
+                    "Copy, move, delete files"
+                ],
+                commands: `mkdir -p projects/web/{frontend,backend}
+cd projects/web/frontend
+pwd
+touch index.html style.css script.js
+ls -la
+cp index.html ../backend/
+mv style.css main.css
+rm script.js`
+            },
+            {
+                id: 2,
+                title: "File Permissions",
+                category: "Linux Commands",
+                tasks: [
+                    "Create executable script",
+                    "Change permissions with chmod",
+                    "Understand rwx notation",
+                    "Practice permission combinations"
+                ],
+                commands: `touch deploy.sh
+chmod +x deploy.sh
+chmod 755 deploy.sh
+ls -l deploy.sh
+chmod u+x,g+r,o-r deploy.sh`
+            },
+            {
+                id: 3,
+                title: "Git Basics",
+                category: "Version Control",
+                tasks: [
+                    "Initialize Git repository",
+                    "Configure user settings",
+                    "Create and commit files",
+                    "View commit history",
+                    "Create branches"
+                ],
+                commands: `git init my-project
+cd my-project
+git config --global user.name "Your Name"
+git add README.md
+git commit -m "Initial commit"
+git branch feature-branch
+git checkout -b new-feature`
+            },
+            {
+                id: 4,
+                title: "Docker Basics",
+                category: "Containerization",
+                tasks: [
+                    "Pull Docker images",
+                    "Run containers",
+                    "Create Dockerfile",
+                    "Build custom images",
+                    "Manage containers"
+                ],
+                commands: `docker pull nginx
+docker run -d -p 8080:80 nginx
+docker ps
+docker build -t my-app .
+docker logs <container-id>
+docker exec -it <container-id> /bin/sh`
+            },
+            {
+                id: 5,
+                title: "Docker Compose",
+                category: "Containerization",
+                tasks: [
+                    "Create docker-compose.yml",
+                    "Define multiple services",
+                    "Use environment variables",
+                    "Scale services",
+                    "Manage multi-container apps"
+                ],
+                commands: `docker-compose up -d
+docker-compose ps
+docker-compose logs web
+docker-compose scale web=3
+docker-compose down`
+            }
+        ];
+
+        let completedExercises = JSON.parse(localStorage.getItem('completedExercises') || '[]');
+        let currentExercise = 0;
+
+        function initApp() {
+            renderSidebar();
+            renderExercises();
+            updateProgress();
+        }
+
+        function renderSidebar() {
+            const list = document.getElementById('exerciseList');
+            const categories = [...new Set(exercises.map(e => e.category))];
+            
+            list.innerHTML = categories.map(category => `
+                <li style="background: #2c3e50; font-weight: bold;">${category}</li>
+                ${exercises.filter(e => e.category === category).map(exercise => `
+                    <li onclick="showExercise(${exercise.id})" class="${completedExercises.includes(exercise.id) ? 'completed' : ''}" data-id="${exercise.id}">
+                        ${completedExercises.includes(exercise.id) ? '✅' : '📝'} Exercise ${exercise.id}: ${exercise.title}
+                    </li>
+                `).join('')}
+            `).join('');
+        }
+
+        function renderExercises() {
+            const container = document.getElementById('exerciseContainer');
+            container.innerHTML = exercises.map(exercise => `
+                <div class="exercise-card">
+                    <h2 class="exercise-title">
+                        ${completedExercises.includes(exercise.id) ? '✅' : '📝'} 
+                        Exercise ${exercise.id}: ${exercise.title}
+                    </h2>
+                    <p><strong>Category:</strong> ${exercise.category}</p>
+                    
+                    <div class="task-list">
+                        <h3>Tasks:</h3>
+                        ${exercise.tasks.map((task, index) => `
+                            <div class="task-item" onclick="toggleTask(${exercise.id}, ${index})">
+                                <span id="task-${exercise.id}-${index}">⭕</span> ${task}
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <h3>Commands to Practice:</h3>
+                    <div class="code-block">${exercise.commands}</div>
+                    
+                    <button class="btn ${completedExercises.includes(exercise.id) ? 'completed' : ''}" 
+                            onclick="toggleComplete(${exercise.id})">
+                        ${completedExercises.includes(exercise.id) ? '✅ Completed' : '📝 Mark Complete'}
+                    </button>
+                    <button class="btn" onclick="copyCommands(${exercise.id})">📋 Copy Commands</button>
+                </div>
+            `).join('');
+        }
+
+        function toggleComplete(exerciseId) {
+            if (completedExercises.includes(exerciseId)) {
+                completedExercises = completedExercises.filter(id => id !== exerciseId);
+            } else {
+                completedExercises.push(exerciseId);
+            }
+            localStorage.setItem('completedExercises', JSON.stringify(completedExercises));
+            renderSidebar();
+            renderExercises();
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = (completedExercises.length / exercises.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = 
+                `Progress: ${completedExercises.length}/${exercises.length} exercises completed`;
+        }
+
+        function copyCommands(exerciseId) {
+            const exercise = exercises.find(e => e.id === exerciseId);
+            navigator.clipboard.writeText(exercise.commands);
+            alert('Commands copied to clipboard!');
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function showExercise(exerciseId) {
+            document.getElementById(`exercise-${exerciseId}`).scrollIntoView({behavior: 'smooth'});
+            toggleSidebar();
+        }
+
+        function searchExercises(query) {
+            const cards = document.querySelectorAll('.exercise-card');
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(query.toLowerCase()) ? 'block' : 'none';
+            });
+        }
+
+        function toggleTask(exerciseId, taskIndex) {
+            const taskElement = document.getElementById(`task-${exerciseId}-${taskIndex}`);
+            const isCompleted = taskElement.textContent === '✅';
+            taskElement.textContent = isCompleted ? '⭕' : '✅';
+            taskElement.parentElement.classList.toggle('completed');
+        }
+
+        // Initialize app
+        initApp();
+    </script>
+</body>
+</html>
