@@ -51,7 +51,7 @@
                 <div class="progress-bar">
                     <div class="progress" id="progressBar"></div>
                 </div>
-                <p id="progressText">Progress: 0/22 exercises completed</p>
+                <p id="progressText">Progress: 0/15 exercises completed</p>
             </div>
             
             <input type="text" class="search-box" placeholder="🔍 Search exercises..." onkeyup="searchExercises(this.value)">
@@ -62,95 +62,269 @@
 
     <script>
         const exercises = [
+            // BASIC LEVEL
             {
                 id: 1,
                 title: "File System Navigation",
-                category: "Linux Commands",
+                level: "Basic",
+                difficulty: "🟢",
                 tasks: [
-                    "Create directory structure: projects/web/{frontend,backend}",
-                    "Navigate using cd, pwd commands",
-                    "List files with ls, ls -la, ls -lh",
-                    "Create files with touch",
-                    "Copy, move, delete files"
+                    "Create directory structure",
+                    "Navigate using cd, pwd",
+                    "List files with ls commands",
+                    "Create files with touch"
                 ],
                 commands: `mkdir -p projects/web/{frontend,backend}
 cd projects/web/frontend
 pwd
-touch index.html style.css script.js
-ls -la
-cp index.html ../backend/
-mv style.css main.css
-rm script.js`
+touch index.html
+ls -la`
             },
             {
                 id: 2,
-                title: "File Permissions",
-                category: "Linux Commands",
+                title: "Basic File Operations",
+                level: "Basic",
+                difficulty: "🟢",
                 tasks: [
-                    "Create executable script",
-                    "Change permissions with chmod",
-                    "Understand rwx notation",
-                    "Practice permission combinations"
+                    "Copy files and directories",
+                    "Move and rename files",
+                    "Delete files safely",
+                    "View file contents"
                 ],
-                commands: `touch deploy.sh
-chmod +x deploy.sh
-chmod 755 deploy.sh
-ls -l deploy.sh
-chmod u+x,g+r,o-r deploy.sh`
+                commands: `cp file.txt backup.txt
+mv old.txt new.txt
+rm unwanted.txt
+cat file.txt
+head -10 file.txt`
             },
             {
                 id: 3,
-                title: "Git Basics",
-                category: "Version Control",
+                title: "Git Introduction",
+                level: "Basic",
+                difficulty: "🟢",
                 tasks: [
                     "Initialize Git repository",
                     "Configure user settings",
-                    "Create and commit files",
-                    "View commit history",
-                    "Create branches"
+                    "Make first commit",
+                    "Check status and history"
                 ],
-                commands: `git init my-project
-cd my-project
+                commands: `git init
 git config --global user.name "Your Name"
-git add README.md
-git commit -m "Initial commit"
-git branch feature-branch
-git checkout -b new-feature`
+git add .
+git commit -m "First commit"
+git status
+git log`
             },
+            
+            // BEGINNER LEVEL
             {
                 id: 4,
-                title: "Docker Basics",
-                category: "Containerization",
+                title: "File Permissions",
+                level: "Beginner",
+                difficulty: "🟡",
                 tasks: [
-                    "Pull Docker images",
-                    "Run containers",
-                    "Create Dockerfile",
-                    "Build custom images",
-                    "Manage containers"
+                    "Understand rwx permissions",
+                    "Change file permissions",
+                    "Create executable scripts",
+                    "Modify ownership"
+                ],
+                commands: `chmod 755 script.sh
+chmod +x deploy.sh
+ls -l file.txt
+chown user:group file.txt`
+            },
+            {
+                id: 5,
+                title: "Git Branching",
+                level: "Beginner",
+                difficulty: "🟡",
+                tasks: [
+                    "Create and switch branches",
+                    "Merge branches",
+                    "Handle basic conflicts",
+                    "Delete branches"
+                ],
+                commands: `git branch feature
+git checkout feature
+git merge main
+git branch -d feature`
+            },
+            {
+                id: 6,
+                title: "Docker Basics",
+                level: "Beginner",
+                difficulty: "🟡",
+                tasks: [
+                    "Pull and run containers",
+                    "List running containers",
+                    "Stop and remove containers",
+                    "View container logs"
                 ],
                 commands: `docker pull nginx
 docker run -d -p 8080:80 nginx
 docker ps
-docker build -t my-app .
-docker logs <container-id>
-docker exec -it <container-id> /bin/sh`
+docker stop <container-id>
+docker logs <container-id>`
+            },
+            
+            // INTERMEDIATE LEVEL
+            {
+                id: 7,
+                title: "Advanced Git Workflows",
+                level: "Intermediate",
+                difficulty: "🟠",
+                tasks: [
+                    "Interactive rebase",
+                    "Cherry-pick commits",
+                    "Use Git stash",
+                    "Configure Git hooks"
+                ],
+                commands: `git rebase -i HEAD~3
+git cherry-pick <commit-hash>
+git stash
+git stash pop
+echo '#!/bin/bash' > .git/hooks/pre-commit`
             },
             {
-                id: 5,
+                id: 8,
                 title: "Docker Compose",
-                category: "Containerization",
+                level: "Intermediate",
+                difficulty: "🟠",
                 tasks: [
-                    "Create docker-compose.yml",
-                    "Define multiple services",
+                    "Create multi-service apps",
                     "Use environment variables",
-                    "Scale services",
-                    "Manage multi-container apps"
+                    "Configure networks",
+                    "Scale services"
                 ],
                 commands: `docker-compose up -d
-docker-compose ps
-docker-compose logs web
 docker-compose scale web=3
+docker-compose logs
 docker-compose down`
+            },
+            {
+                id: 9,
+                title: "CI/CD with GitHub Actions",
+                level: "Intermediate",
+                difficulty: "🟠",
+                tasks: [
+                    "Create workflow files",
+                    "Set up automated testing",
+                    "Deploy applications",
+                    "Use secrets and variables"
+                ],
+                commands: `# .github/workflows/ci.yml
+name: CI
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: npm test`
+            },
+            
+            // PRO LEVEL
+            {
+                id: 10,
+                title: "Kubernetes Deployment",
+                level: "Pro",
+                difficulty: "🔴",
+                tasks: [
+                    "Create deployments and services",
+                    "Configure ingress controllers",
+                    "Implement rolling updates",
+                    "Set up monitoring"
+                ],
+                commands: `kubectl apply -f deployment.yaml
+kubectl expose deployment app --port=80
+kubectl rollout status deployment/app
+kubectl get pods`
+            },
+            {
+                id: 11,
+                title: "Infrastructure as Code (Terraform)",
+                level: "Pro",
+                difficulty: "🔴",
+                tasks: [
+                    "Write Terraform configurations",
+                    "Manage state files",
+                    "Use modules and variables",
+                    "Plan and apply changes"
+                ],
+                commands: `terraform init
+terraform plan
+terraform apply
+terraform destroy`
+            },
+            {
+                id: 12,
+                title: "Monitoring with Prometheus",
+                level: "Pro",
+                difficulty: "🔴",
+                tasks: [
+                    "Set up Prometheus server",
+                    "Configure Grafana dashboards",
+                    "Create alerting rules",
+                    "Monitor application metrics"
+                ],
+                commands: `# prometheus.yml
+global:
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: 'app'
+    static_configs:
+      - targets: ['localhost:8080']`
+            },
+            
+            // EXPERT LEVEL
+            {
+                id: 13,
+                title: "Service Mesh with Istio",
+                level: "Expert",
+                difficulty: "🟣",
+                tasks: [
+                    "Install and configure Istio",
+                    "Implement traffic management",
+                    "Set up security policies",
+                    "Monitor service communications"
+                ],
+                commands: `istioctl install
+kubectl label namespace default istio-injection=enabled
+kubectl apply -f virtual-service.yaml
+istioctl proxy-config cluster <pod-name>`
+            },
+            {
+                id: 14,
+                title: "Advanced Security Scanning",
+                level: "Expert",
+                difficulty: "🟣",
+                tasks: [
+                    "Implement SAST/DAST scanning",
+                    "Container vulnerability assessment",
+                    "Runtime security monitoring",
+                    "Compliance automation"
+                ],
+                commands: `trivy image nginx:latest
+falco --rules-file custom.yaml
+twistcli images scan nginx:latest
+open-policy-agent eval policy.rego`
+            },
+            {
+                id: 15,
+                title: "Multi-Cloud Architecture",
+                level: "Expert",
+                difficulty: "🟣",
+                tasks: [
+                    "Design cross-cloud deployments",
+                    "Implement disaster recovery",
+                    "Optimize costs across providers",
+                    "Manage hybrid workloads"
+                ],
+                commands: `# Multi-cloud Terraform
+provider "aws" { region = "us-west-2" }
+provider "google" { region = "us-central1" }
+resource "aws_instance" "web" {}
+resource "google_compute_instance" "app" {}`
             }
         ];
 
@@ -165,13 +339,13 @@ docker-compose down`
 
         function renderSidebar() {
             const list = document.getElementById('exerciseList');
-            const categories = [...new Set(exercises.map(e => e.category))];
+            const levels = ['Basic', 'Beginner', 'Intermediate', 'Pro', 'Expert'];
             
-            list.innerHTML = categories.map(category => `
-                <li style="background: #2c3e50; font-weight: bold;">${category}</li>
-                ${exercises.filter(e => e.category === category).map(exercise => `
+            list.innerHTML = levels.map(level => `
+                <li style="background: #2c3e50; font-weight: bold;">${level} Level</li>
+                ${exercises.filter(e => e.level === level).map(exercise => `
                     <li onclick="showExercise(${exercise.id})" class="${completedExercises.includes(exercise.id) ? 'completed' : ''}" data-id="${exercise.id}">
-                        ${completedExercises.includes(exercise.id) ? '✅' : '📝'} Exercise ${exercise.id}: ${exercise.title}
+                        ${exercise.difficulty} ${completedExercises.includes(exercise.id) ? '✅' : '📝'} ${exercise.title}
                     </li>
                 `).join('')}
             `).join('');
@@ -185,7 +359,7 @@ docker-compose down`
                         ${completedExercises.includes(exercise.id) ? '✅' : '📝'} 
                         Exercise ${exercise.id}: ${exercise.title}
                     </h2>
-                    <p><strong>Category:</strong> ${exercise.category}</p>
+                    <p><strong>Level:</strong> ${exercise.difficulty} ${exercise.level}</p>
                     
                     <div class="task-list">
                         <h3>Tasks:</h3>
